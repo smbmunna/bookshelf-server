@@ -23,6 +23,7 @@ const client = new MongoClient(uri, {
 const database = client.db("bookshelfdb");
 //collections
 const categories = database.collection("categories");
+const books = database.collection("books");
 
 
 async function run() {
@@ -41,6 +42,12 @@ async function run() {
         //get all book categories
         app.get('/categories', async (req, res)=>{
             const result= await categories.find().toArray();
+            res.send(result);
+        })
+
+        //add book
+        app.post('/addBook', async(req, res)=>{
+            const result= await books.insertOne(req.body);
             res.send(result);
         })
 
