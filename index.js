@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.cfuzedb.mongodb.net/?retryWrites=true&w=majority`;
 
 
@@ -54,6 +54,14 @@ async function run() {
         //find Books by category
         app.get('/books/category/:category', async(req, res)=>{            
             const query= {category: req.params.category};            
+            const result= await books.find(query).toArray();
+            res.send(result);
+        })
+
+        //find a book by id
+        app.get('/book/:id', async(req, res)=>{
+            //console.log(req.params);
+            const query={_id: new ObjectId(req.params.id)}
             const result= await books.findOne(query);
             res.send(result);
         })
