@@ -74,6 +74,23 @@ async function run() {
             res.send(result);
         })
 
+        //update stock after adding to cart
+        app.patch('/updateStock/:id', async(req, res)=>{
+            const id= req.params.id;
+            const newQuantity= req.body.quantity; 
+            const filter= {_id: new ObjectId(id)}; 
+            const updatedDoc= {
+                $set: {
+                    quantity: newQuantity
+                }
+            }
+            const result= await books.updateOne(filter, updatedDoc) ;
+            res.send(result);
+            // console.log(id);
+            // console.log(newQuantity);
+        })
+
+
     } finally {
         // Ensures that the client will close when you finish/error
         //await client.close();
