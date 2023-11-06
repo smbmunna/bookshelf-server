@@ -51,6 +51,13 @@ async function run() {
             res.send(result);
         })
 
+        //find Books by category
+        app.get('/books/category/:category', async(req, res)=>{            
+            const query= {category: req.params.category};            
+            const result= await books.findOne(query);
+            res.send(result);
+        })
+
 
     } finally {
         // Ensures that the client will close when you finish/error
