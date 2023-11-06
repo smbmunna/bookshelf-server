@@ -86,8 +86,18 @@ async function run() {
             }
             const result= await books.updateOne(filter, updatedDoc) ;
             res.send(result);
-            // console.log(id);
-            // console.log(newQuantity);
+        })
+        
+        //get borrowed books
+        app.get('/borrowedBooks', async(req, res)=>{
+            
+            let query={};
+            if(req.query?.email){
+                query={email:req.query?.email}
+            }
+            
+            const result= await cart.find(query).toArray();
+            res.send(result);            
         })
 
 
