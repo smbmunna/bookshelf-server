@@ -24,6 +24,7 @@ const database = client.db("bookshelfdb");
 //collections
 const categories = database.collection("categories");
 const books = database.collection("books");
+const cart = database.collection("cart");
 
 
 async function run() {
@@ -66,6 +67,12 @@ async function run() {
             res.send(result);
         })
 
+
+        //add book to cart
+        app.post('/addToCart', async(req, res)=>{
+            const result= await cart.insertOne(req.body);
+            res.send(result);
+        })
 
     } finally {
         // Ensures that the client will close when you finish/error
