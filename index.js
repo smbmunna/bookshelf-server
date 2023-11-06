@@ -46,6 +46,13 @@ async function run() {
             res.send(result);
         })
 
+        //get books of all categories
+        app.get('/allBooks', async (req, res)=>{
+            const result= await books.find().toArray();
+            res.send(result);
+        })
+
+
         //add book
         app.post('/addBook', async(req, res)=>{
             const result= await books.insertOne(req.body);
