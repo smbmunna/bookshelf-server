@@ -74,11 +74,23 @@ async function run() {
             res.send(result);
         })
 
+        //update book information 
+        app.put('/updateBook/:id', async (req, res)=>{
+            const id= req.params.id; 
+            const newBook= req.body;
+            const filter= {_id: new ObjectId(id)};
+            const updatedData= {
+                $set:newBook
+            }
+            //console.log(updatedData);
+            const result= await books.updateOne(filter, updatedData) ;
+            res.send(result);
+        })
 
         //add book to cart
         app.post('/addToCart', async(req, res)=>{
             const result= await cart.insertOne(req.body);
-            res.send(result);
+            res.send(result);            
         })
 
         //update stock after adding to cart
