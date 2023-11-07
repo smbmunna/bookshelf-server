@@ -3,10 +3,31 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
-
+const jwt= require('jsonwebtoken');
+const cookieParser= require('cookie-parser')
 //middlewares
-app.use(cors());
+app.use(cors({
+    origin:'http://localhost:5173',
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+//middleware for verifying token
+const verifyToken = (req, res, next)=>{
+    const token= req?.cookies?.token;
+    //console.log('Token inside verify middleware', token);
+    if(!token){
+        return res.status(401).send({message: 'User Unauthorized'});
+    }
+    //if token exists then verify and decode the token for verification
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode)=>{
+        if(err){
+            return res.status(401).send({message: 'Unauthorized Access'});
+        }
+        req.user= decode; 
+        next();
+    })
+}
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.cfuzedb.mongodb.net/?retryWrites=true&w=majority`;
@@ -47,7 +68,10 @@ async function run() {
         })
 
         //get books of all categories
-        app.get('/allBooks', async (req, res)=>{
+        app.get('/allBooks', verifyToken, async (req, res)=>{            
+            if(req.query.email !== req.user.email){
+                return res.status(403).send({message: 'Forbidden to view the content of this page'})
+            }
             const result= await books.find().toArray();
             res.send(result);
         })
@@ -109,7 +133,7 @@ async function run() {
                     quantity: newQuantity
                 }
             }
-            console.log(updatedDoc);
+            //console.log(updatedDoc);
             const result= await books.updateOne(filter, updatedDoc) ;
             res.send(result);
         })
@@ -124,6 +148,18 @@ async function run() {
             
             const result= await cart.find(query).toArray();
             res.send(result);            
+        })
+
+        //JSON Web token JWT
+        app.post('/jwt', async(req, res)=>{
+            const user= req.body;
+            const token= jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
+            res.cookie('token', token,{
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
+            })
+            .send({success: true})
         })
 
 
