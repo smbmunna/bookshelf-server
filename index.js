@@ -52,6 +52,12 @@ async function run() {
             res.send(result);
         })
 
+        //get only available books (quantity>0)
+        app.get('/availableBooks', async(req, res)=>{
+            const query={quantity: {$gt: 0}};
+            const result= await books.find(query).toArray();
+            res.send(result);
+        })
 
         //add book
         app.post('/addBook', async(req, res)=>{
@@ -103,6 +109,7 @@ async function run() {
                     quantity: newQuantity
                 }
             }
+            console.log(updatedDoc);
             const result= await books.updateOne(filter, updatedDoc) ;
             res.send(result);
         })
