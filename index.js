@@ -86,6 +86,7 @@ async function run() {
         //add book
         app.post('/addBook', async(req, res)=>{
             const result= await books.insertOne(req.body);
+            // console.log(req.cookies);
             res.send(result);
         })
 
@@ -145,9 +146,17 @@ async function run() {
             if(req.query?.email){
                 query={email:req.query?.email}
             }
-            
             const result= await cart.find(query).toArray();
             res.send(result);            
+        })
+
+        //delete borrowed book
+        app.delete('/delete/cart/:email/:bookID', async(req,res)=>{
+            const email=req.params.email;
+            const bookID=req.params.bookID;
+            const query={email:email, bookID:bookID };
+            const result= await cart.deleteOne(query);
+            res.send(result);
         })
 
         //JSON Web token JWT
