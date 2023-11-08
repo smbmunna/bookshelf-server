@@ -74,16 +74,19 @@ async function run() {
         })
 
         //get only available books (quantity>0)
-        app.get('/availableBooks', async(req, res)=>{
+        app.get('/availableBooks',verifyToken, async(req, res)=>{
             const query={quantity: {$gt: 0}};
             const result= await books.find(query).toArray();
             res.send(result);
         })
 
         //add book
-        app.post('/addBook', async(req, res)=>{
-            const result= await books.insertOne(req.body);
-            // console.log(req.cookies);
+        app.post('/addBook/:email', async(req, res)=>{
+            console.log(req.params.email);
+            if(req.params.email !== req.user.email){
+                return res.status(403).send({message: 'Unauthorized to add book'})
+            }
+            const result= await books.insertOne(req.body);            
             res.send(result);
         })
 
@@ -105,7 +108,7 @@ async function run() {
         //update book information 
         app.put('/updateBook/:id/:email',verifyToken, async (req, res)=>{
             
-            console.log(req.cookies?.token);
+            //console.log(req.cookies?.token);
             const id= req.params.id; 
             const newBook= req.body;
             const filter= {_id: new ObjectId(id)};
