@@ -74,14 +74,14 @@ async function run() {
         })
 
         //get only available books (quantity>0)
-        app.get('/availableBooks',verifyToken, async(req, res)=>{
+        app.get('/availableBooks', async(req, res)=>{
             const query={quantity: {$gt: 0}};
             const result= await books.find(query).toArray();
             res.send(result);
         })
 
         //add book
-        app.post('/addBook/:email', async(req, res)=>{
+        app.post('/addBook/:email', verifyToken, async(req, res)=>{
             console.log(req.params.email);
             if(req.params.email !== req.user.email){
                 return res.status(403).send({message: 'Unauthorized to add book'})
