@@ -68,10 +68,7 @@ async function run() {
         })
 
         //get books of all categories
-        app.get('/allBooks', verifyToken, async (req, res)=>{            
-            if(req.query.email !== req.user.email){
-                return res.status(403).send({message: 'Forbidden to view the content of this page'})
-            }
+        app.get('/allBooks', async (req, res)=>{   
             const result= await books.find().toArray();
             res.send(result);
         })
@@ -106,14 +103,18 @@ async function run() {
         })
 
         //update book information 
-        app.put('/updateBook/:id', async (req, res)=>{
+        app.put('/updateBook/:id/:email',verifyToken, async (req, res)=>{
+            
+            console.log(req.cookies?.token);
             const id= req.params.id; 
             const newBook= req.body;
             const filter= {_id: new ObjectId(id)};
             const updatedData= {
                 $set:newBook
             }
-            //console.log(updatedData);
+            if(req.params.email !== req.user.email){
+                return res.status(403).send({message: 'Forbidden to view the content of this page'})
+            }
             const result= await books.updateOne(filter, updatedData) ;
             res.send(result);
         })
@@ -169,6 +170,12 @@ async function run() {
                 sameSite: 'none'
             })
             .send({success: true})
+        })
+
+        //clear token from cookies after loggin out
+        app.post('/logout', async(req, res)=>{
+            await res.clearCookie('token', {maxAge: 0})
+            .send({success: 'true'})
         })
 
 
