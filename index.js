@@ -132,10 +132,28 @@ async function run() {
             res.send(result);            
         })
 
-        //update stock after adding to cart
+        //borrow and decrease book qty
         app.patch('/updateStock/:id', async(req, res)=>{
             const id= req.params.id;
             const newQuantity= req.body.quantity; 
+            const filter= {_id: new ObjectId(id)}; 
+            const updatedDoc= {
+                $set: {
+                    quantity: newQuantity
+                }
+            }
+            //console.log(updatedDoc);
+            const result= await books.updateOne(filter, updatedDoc) ;
+            res.send(result);
+        })
+        //return and increase book qty
+        app.patch('/updateStock/return-book/:id', async(req, res)=>{
+            const id= req.params.id;
+            //get quantity
+            const query={_id: new ObjectId(req.params.id)}
+            const book= await books.findOne(query);
+            //res.send(book);
+            const newQuantity= book.quantity +1; 
             const filter= {_id: new ObjectId(id)}; 
             const updatedDoc= {
                 $set: {
